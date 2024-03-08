@@ -70,8 +70,8 @@ class TestCommand(kord: Kord): Command {
 <dependencies>
     <dependency>
         <groupId>kr.blugon</groupId>
-        <artifactId>API_NAME</artifactId>
-        <version>latest</version>
+        <artifactId>kordmand</artifactId>
+        <version>VERSION</version>
     </dependency>
 </dependencies>
 ```
@@ -84,7 +84,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'kr.blugon:API_NAME:latest'
+    implementation 'kr.blugon:kordmand:VERSION'
 }
 ```
 
@@ -95,6 +95,6 @@ repositories {
 }
 
 dependencies {
-    implementation("kr.blugon:API_NAME:latest")
+    implementation("kr.blugon:kordmand:VERSION")
 }
 ```
