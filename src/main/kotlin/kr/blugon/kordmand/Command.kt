@@ -13,14 +13,14 @@ interface Command {
     val description: String
     val options: List<CommandOption>?
 
-    suspend fun onRun(bot: Kord, run: GuildChatInputCommandInteractionCreateEvent.()->Unit) {
+    fun onRun(bot: Kord, run: suspend GuildChatInputCommandInteractionCreateEvent.()->Unit) {
         bot.on<GuildChatInputCommandInteractionCreateEvent> {
             if(interaction.command.rootName != command) return@on
             run(this)
         }
     }
 
-    suspend fun onAutoComplete(bot: Kord, run: AutoCompleteInteractionCreateEvent.()->Unit) {
+    fun onAutoComplete(bot: Kord, run: suspend AutoCompleteInteractionCreateEvent.()->Unit) {
         bot.on<AutoCompleteInteractionCreateEvent> {
             if(interaction.command.rootName != command) return@on
             run(this)
