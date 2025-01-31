@@ -4,53 +4,57 @@ import dev.kord.common.entity.ChannelType
 import dev.kord.common.entity.Choice
 import dev.kord.common.entity.optional.Optional
 
-interface CommandOption {
-    val name: String
-    val description: String
-    val type: OptionType
-    var required: Boolean
+abstract class CommandOption {
+    abstract val name: String
+    abstract val description: String
+    abstract val type: OptionType
+    open var required: Boolean = false
 }
-
 
 data class MentionableOption( //Mentionable
     override var name: String,
     override var description: String,
-): CommandOption {
+    var apply: MentionableOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.MENTIONABLE
-    override var required = false
+    init { apply(this) }
 }
 
 data class ChannelOption( //Channel
     override var name: String,
     override var description: String,
-): CommandOption {
+    var apply: ChannelOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.CHANNEL
-    override var required = false
     val channelTypes = ArrayList<ChannelType>()
+    init { apply(this) }
 }
 
 data class UserOption( //User
     override var name: String,
     override var description: String,
-): CommandOption {
+    var apply: UserOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.USER
-    override var required = false
+    init { apply(this) }
 }
 
 data class RoleOption( //Role
     override var name: String,
     override var description: String,
-): CommandOption {
+    var apply: RoleOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.ROLE
-    override var required = false
+    init { apply(this) }
 }
 
 data class AttachmentOption( //Attachment
     override var name: String,
     override var description: String,
-): CommandOption {
+    var apply: AttachmentOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.ATTACHMENT
-    override var required = false
+    init { apply(this) }
 }
 
 data class NumberOption( //Number
@@ -58,10 +62,11 @@ data class NumberOption( //Number
     override var description: String,
     var minValue: Double? = null,
     var maxValue: Double? = null,
-): CommandOption {
+    var apply: NumberOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.NUMBER
-    override var required = false
     val choices = ArrayList<Choice.NumberChoice>()
+    init { apply(this) }
 }
 
 data class StringOption( //String
@@ -70,10 +75,11 @@ data class StringOption( //String
     var minLength: Int? = null,
     var maxLength: Int? = null,
     var autoComplete: Boolean = false,
-): CommandOption {
+    var apply: StringOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.STRING
-    override var required = false
     val choices = ArrayList<Choice.StringChoice>()
+    init { apply(this) }
 
     fun choice(name: String, value: String) {
         choices.add(Choice.StringChoice(name, Optional.Missing(), value))
@@ -85,10 +91,11 @@ data class IntegerOption( //Integer
     override var description: String,
     var minValue: Long? = null,
     var maxValue: Long? = null,
-): CommandOption {
+    var apply: IntegerOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.INTEGER
-    override var required = false
     val choices = ArrayList<Choice.IntegerChoice>()
+    init { apply(this) }
 
     fun choice(name: String, value: Long) {
         choices.add(Choice.IntegerChoice(name, Optional.Missing(), value))
@@ -98,27 +105,30 @@ data class IntegerOption( //Integer
 data class BooleanOption( //Boolean
     override var name: String,
     override var description: String,
-): CommandOption {
+    var apply: BooleanOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.BOOLEAN
-    override var required = false
+    init { apply(this) }
 }
 
 data class SubCommandOption( //Boolean
     override var name: String,
     override var description: String,
-): CommandOption {
+    var apply: SubCommandOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.SUB_COMMAND
-    override var required = false
     var options: MutableList<CommandOption>? = null
+    init { apply(this) }
 }
 
 data class GroupOption( //Boolean
     override var name: String,
     override var description: String,
-): CommandOption {
+    var apply: GroupOption.() -> Unit = {},
+): CommandOption() {
     override val type: OptionType = OptionType.GROUP
-    override var required = false
     var subCommands: MutableList<SubCommandOption>? = null
+    init { apply(this) }
 }
 
 enum class OptionType {

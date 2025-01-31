@@ -4,5 +4,4 @@
 
 gradle.properties
 # 프로젝트 제외 경로
-/build/
-/build/classes/kotlin/main/
+build/

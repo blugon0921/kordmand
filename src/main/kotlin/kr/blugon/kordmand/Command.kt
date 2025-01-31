@@ -8,22 +8,28 @@ import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEve
 import dev.kord.core.on
 import dev.kord.rest.builder.interaction.*
 
-interface Command {
-    val command: String
-    val description: String
-    val options: List<CommandOption>?
+abstract class CompletableCommand(override val bot: Kord): Command(bot) {
+    abstract suspend fun AutoCompleteInteractionCreateEvent.onAutoComplete()
 
-    fun onRun(bot: Kord, run: suspend GuildChatInputCommandInteractionCreateEvent.()->Unit) {
-        bot.on<GuildChatInputCommandInteractionCreateEvent> {
-            if(interaction.command.rootName != command) return@on
-            run(this)
-        }
-    }
-
-    fun onAutoComplete(bot: Kord, run: suspend AutoCompleteInteractionCreateEvent.()->Unit) {
+    override fun registerEvent() {
+        super.registerEvent()
         bot.on<AutoCompleteInteractionCreateEvent> {
             if(interaction.command.rootName != command) return@on
-            run(this)
+            onAutoComplete()
+        }
+    }
+}
+abstract class Command(open val bot: Kord): RegistrableEvent {
+    abstract val command: String
+    abstract val description: String
+    open val options: List<CommandOption>? = null
+
+    abstract suspend fun GuildChatInputCommandInteractionCreateEvent.onRun()
+
+    override fun registerEvent() {
+        bot.on<GuildChatInputCommandInteractionCreateEvent> {
+            if(interaction.command.rootName != command) return@on
+            onRun()
         }
     }
 

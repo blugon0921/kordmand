@@ -1,9 +1,9 @@
 # kordmand
 
-[![kordmand](https://img.shields.io/badge/kordmand-0.0.3-blue.svg)]()
+[![kordmand](https://img.shields.io/badge/kordmand-0.0.6-blue.svg)]()
 <br><br>
 [![Java](https://img.shields.io/badge/Java-21-FF7700.svg?logo=java)]()
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.23-186FCC.svg?logo=kotlin)]()
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-186FCC.svg?logo=kotlin)]()
 
 
 ## Sample Code
@@ -15,40 +15,39 @@ suspend fun main() {
     
     TestCommand(kord).let {
         kord.registerGlobalCommand(it)
+        kord.registerEvent()
     }
 }
 
-class TestCommand(kord: Kord): Command {
+class TestCommand(bot: Kord): Command(bot) {
     override val command = "test"
     override val description = "Test command description"
     override val options = listOf(
-        IntegerOption("option1", "First option").apply {
+        IntegerOption("option1", "First option") {
             this.minValue = 0
             this.maxValue = 20
             this.required = true
         },
-        StringOption("option2", "Second option").apply {
+        StringOption("option2", "Second option") {
             this.required = true
             this.autoComplete = true
         },
         BooleanOption("option3", "Third option")
     )
     
-    init {
-        onRun(kord) {
-            interaction.respondPublic {
-                embed {
-                    this.title = "Hello, world!"
-                }
+    override fun GuildChatInputCommandInteractionCreateEvent.onRun() {
+        interaction.respondPublic {
+            embed {
+                this.title = "Hello, world!"
             }
         }
+    }
 
-        onAutoComplete(kord) {
-            interaction.suggestString {
-                this.choice("asdf", "asdf")
-                this.choice("fdsa", "fdsa")
-                this.choice("qwer", "qwer")
-            }
+    override fun AutoCompleteInteractionCreateEvent.onAutoComplete() {
+        interaction.suggestString {
+            this.choice("asdf", "asdf")
+            this.choice("fdsa", "fdsa")
+            this.choice("qwer", "qwer")
         }
     }
 }

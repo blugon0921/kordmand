@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "1.9.23"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.jetbrains.dokka") version "1.5.0"
+    kotlin("jvm") version "2.0.0"
+    id("com.gradleup.shadow") version "8.3.0"
+    id("org.jetbrains.dokka") version "1.9.20"
     `maven-publish`
 }
 
@@ -23,8 +23,8 @@ repositories {
 dependencies {
     compileOnly(kotlin("stdlib"))
     compileOnly(kotlin("reflect"))
-    implementation("dev.kord:kord-core:latest.release")
-    implementation("org.slf4j:slf4j-simple:latest.release")
+    compileOnly("dev.kord:kord-core:latest.release")
+    compileOnly("org.slf4j:slf4j-simple:latest.release")
 }
 
 tasks {
