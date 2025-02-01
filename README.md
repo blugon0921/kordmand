@@ -1,9 +1,11 @@
 # kordmand
 
 [![kordmand](https://img.shields.io/badge/kordmand-0.0.6-blue.svg)]()
-<br><br>
+<br>
 [![Java](https://img.shields.io/badge/Java-21-FF7700.svg?logo=java)]()
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-186FCC.svg?logo=kotlin)]()
+<br><br>
+Application command library for [Kord](https://github.com/kordlib/kord)
 
 
 ## Sample Code
