@@ -7,6 +7,7 @@ import dev.kord.core.event.interaction.AutoCompleteInteractionCreateEvent
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.core.on
 import dev.kord.rest.builder.interaction.*
+import kotlinx.coroutines.flow.toList
 
 abstract class CompletableCommand(override val bot: Kord): Command(bot) {
     abstract suspend fun AutoCompleteInteractionCreateEvent.onAutoComplete()
@@ -19,6 +20,15 @@ abstract class CompletableCommand(override val bot: Kord): Command(bot) {
         }
     }
 }
+
+suspend fun Kord.registerGuildCommand(command: Command, guild: Guild) = this.registerGuildCommand(command, guild.id)
+suspend fun Kord.registerGuildCommand(command: Command, guildId: Snowflake) = command.registerToGuild(this, guildId)
+suspend fun Kord.registerGlobalCommand(command: Command) = command.registerToGlobal(this)
+
+suspend fun Kord.deleteGuildCommand(command: Command, guild: Guild) = this.deleteGuildCommand(command, guild.id)
+suspend fun Kord.deleteGuildCommand(command: Command, guildId: Snowflake) = command.deleteFromGuild(this, guildId)
+suspend fun Kord.deleteGlobalCommand(command: Command) = command.deleteFromGlobal(this)
+
 abstract class Command(open val bot: Kord): RegistrableEvent {
     abstract val command: String
     abstract val description: String
@@ -33,87 +43,33 @@ abstract class Command(open val bot: Kord): RegistrableEvent {
         }
     }
 
-    companion object {
-        suspend fun Kord.registerGuildCommand(command: Command, guild: Guild) = this.registerGuildCommand(command, guild.id)
-        suspend fun Kord.registerGuildCommand(command: Command, guildId: Snowflake) = command.registerWithGuild(this, guildId)
-
-        suspend fun Kord.registerGlobalCommand(command: Command) = command.registerWithGlobal(this)
-    }
-
-    suspend fun registerWithGuild(bot: Kord, guildId: Snowflake) {
+    suspend fun registerToGuild(bot: Kord, guildId: Snowflake) {
         bot.createGuildChatInputCommand(guildId, command, description) {
             this.setOptions()
         }
     }
-
-    suspend fun registerWithGlobal(bot: Kord) {
+    suspend fun registerToGlobal(bot: Kord) {
         bot.createGlobalChatInputCommand(command, description) {
             this.setOptions()
+        }
+    }
+
+    suspend fun deleteFromGuild(bot: Kord, guildId: Snowflake) {
+        bot.getGuildApplicationCommands(guildId).toList().forEach {
+            if(it.name != command) return@forEach
+            it.delete()
+        }
+    }
+    suspend fun deleteFromGlobal(bot: Kord) {
+        bot.getGlobalApplicationCommands().toList().forEach {
+            if(it.name != command) return@forEach
+            it.delete()
         }
     }
 
     private fun ChatInputCreateBuilder.setOptions() {
         this@Command.options?.forEach { option ->
             when(option) {
-                //Mentionable
-                is MentionableOption -> this.mentionable(option.name, option.description) {
-                    this.required = option.required
-                }
-
-                //Channel
-                is ChannelOption -> this.channel(option.name, option.description) {
-                    this.required = option.required
-                    this.channelTypes = option.channelTypes
-                }
-
-                //User
-                is UserOption -> this.user(option.name, option.description) {
-                    this.required = option.required
-                }
-
-                //Role
-                is RoleOption -> this.user(option.name, option.description) {
-                    this.required = option.required
-                }
-
-                //Attachment
-                is AttachmentOption -> this.attachment(option.name, option.description) {
-                    this.required = option.required
-                }
-
-                //Number
-                is NumberOption -> this.number(option.name, option.description) {
-                    this.required = option.required
-                    this.minValue = option.minValue
-                    this.maxValue = option.maxValue
-                }
-
-                //String
-                is StringOption -> this.string(option.name, option.description) {
-                    this.required = option.required
-                    this.minLength = option.minLength
-                    this.maxLength = option.maxLength
-                    this.autocomplete = option.autoComplete
-                    option.choices.forEach {
-                        this.choice(it.name, it.value)
-                    }
-                }
-
-                //Integer
-                is IntegerOption -> this.integer(option.name, option.description) {
-                    this.required = option.required
-                    this.minValue = option.minValue
-                    this.maxValue = option.maxValue
-                    option.choices.forEach {
-                        this.choice(it.name, it.value)
-                    }
-                }
-
-                //Boolean
-                is BooleanOption -> this.boolean(option.name, option.description) {
-                    this.required = option.required
-                }
-
                 //SubCommand
                 is SubCommandOption -> this.subCommand(option.name, option.description) {
                     this.required = option.required
@@ -134,11 +90,13 @@ abstract class Command(open val bot: Kord): RegistrableEvent {
                         }
                     }
                 }
+
+                else -> this.setOptions(option)
             }
         }
     }
 
-    private fun SubCommandBuilder.setOptions(option: CommandOption) {
+    private fun BaseInputChatBuilder.setOptions(option: CommandOption) {
         when(option) {
             //Mentionable
             is MentionableOption -> this.mentionable(option.name, option.description) {

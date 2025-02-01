@@ -1,6 +1,6 @@
 # kordmand
 
-[![kordmand](https://img.shields.io/badge/kordmand-0.0.6-blue.svg)]()
+[![kordmand](https://img.shields.io/badge/kordmand-0.0.7-blue.svg)]()
 <br>
 [![Java](https://img.shields.io/badge/Java-21-FF7700.svg?logo=java)]()
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-186FCC.svg?logo=kotlin)]()
